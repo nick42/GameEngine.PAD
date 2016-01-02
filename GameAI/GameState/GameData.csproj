@@ -7,8 +7,8 @@
     <ProjectGuid>{CA405F41-35EC-4E92-87B2-FEF2880A39C4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameState</RootNamespace>
-    <AssemblyName>GameState</AssemblyName>
+    <RootNamespace>GameData</RootNamespace>
+    <AssemblyName>GameData</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,8 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BoardState.cs" />
+    <Compile Include="BoardProcessing.cs" />
+    <Compile Include="GameLevelState.cs" />
+    <Compile Include="MoveProcessing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameDataInterop\GameDataInterop.csproj">
+      <Project>{ef30acbc-ee33-4351-9d5c-b3acddbb5e62}</Project>
+      <Name>GameDataInterop</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

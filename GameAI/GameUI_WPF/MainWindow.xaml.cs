@@ -20,9 +20,17 @@ namespace GameUI_WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        public GameData.GameLevelState m_GameLevelState;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            m_GameLevelState = new GameData.GameLevelState();
+            m_GameLevelState.InitializeNewLevel_Default();
+
+            m_GameLevelState.m_BoardProcessing.OutputBoardStateToDebugTrace(m_GameLevelState.m_BoardState);
+
         }
     }
 }

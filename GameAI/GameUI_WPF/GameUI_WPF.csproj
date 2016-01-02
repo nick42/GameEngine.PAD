@@ -95,6 +95,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameDataInterop\GameDataInterop.csproj">
+      <Project>{ef30acbc-ee33-4351-9d5c-b3acddbb5e62}</Project>
+      <Name>GameDataInterop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GameState\GameData.csproj">
+      <Project>{ca405f41-35ec-4e92-87b2-fef2880a39c4}</Project>
+      <Name>GameData</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
