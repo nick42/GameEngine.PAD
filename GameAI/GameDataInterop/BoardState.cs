@@ -21,10 +21,50 @@ namespace GameDataInterop
         OutOfBounds,
     }
 
+    public enum Alignment_HorizontalAndVertical
+    {
+        Horizontal,
+        Vertical,
+    }
+
+    public enum Direction_HorizontalAndVertical
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+    }
+
     public class CellIndex
     {
         public int m_nRow;
         public int m_nColumn;
+
+        public int GetCompositeIdentifier()
+        {
+            System.Diagnostics.Debug.Assert(m_nRow >= 0);
+            System.Diagnostics.Debug.Assert(m_nRow < 32000);
+            System.Diagnostics.Debug.Assert(m_nColumn >= 0);
+            System.Diagnostics.Debug.Assert(m_nColumn < 32000);
+            return (m_nRow << 16) + m_nColumn;
+        }
+
+        public CellIndex GetNeighboringCellIndex(Direction_HorizontalAndVertical eDirection, int nOffset = 1)
+        {
+            switch (eDirection)
+            {
+                case Direction_HorizontalAndVertical.Up:
+                    return new CellIndex { m_nColumn = m_nColumn, m_nRow = (m_nRow - nOffset) };
+                case Direction_HorizontalAndVertical.Down:
+                    return new CellIndex { m_nColumn = m_nColumn, m_nRow = (m_nRow + nOffset) };
+                case Direction_HorizontalAndVertical.Left:
+                    return new CellIndex { m_nColumn = (m_nColumn - nOffset), m_nRow = m_nRow };
+                case Direction_HorizontalAndVertical.Right:
+                    return new CellIndex { m_nColumn = (m_nColumn + nOffset), m_nRow = m_nRow };
+                default:
+                    throw new Exception("Case not handled in switch.");
+            }
+        }
     }
 
     public class BoardElement
@@ -32,6 +72,23 @@ namespace GameDataInterop
         public CellIndex m_CellIndex;
         public BoardElementBaseType m_eBoardElementBaseType;
 
+        public bool IsValidNonTransientToken()
+        {
+            switch (m_eBoardElementBaseType)
+            {
+                case BoardElementBaseType.Gem_Red:
+                case BoardElementBaseType.Gem_Blue:
+                case BoardElementBaseType.Gem_Green:
+                case BoardElementBaseType.Gem_Light:
+                case BoardElementBaseType.Gem_Dark:
+                case BoardElementBaseType.Gem_Health:
+                case BoardElementBaseType.Token_Blocker:
+                case BoardElementBaseType.Token_Poison:
+                    return true;
+                default:
+                    return false;
+            }
+        }
         public bool IsOutOfBounds()
         {
             return (m_eBoardElementBaseType == BoardElementBaseType.OutOfBounds);

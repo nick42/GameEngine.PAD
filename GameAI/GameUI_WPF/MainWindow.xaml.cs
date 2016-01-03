@@ -31,6 +31,7 @@ namespace GameUI_WPF
 
             m_GameLevelState.m_BoardProcessing.OutputBoardStateToDebugTrace(m_GameLevelState.m_BoardState);
 
+            //List<GameDataInterop.GameState.BoardGemMatch> oBoardGemMatchList = m_GameLevelState.m_BoardProcessing.FindAllMatches(m_GameLevelState.m_BoardState);
         }
     }
 }

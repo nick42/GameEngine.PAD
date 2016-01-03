@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoardState.cs" />
+    <Compile Include="Exceptions\UnhandledCaseInSwitch.cs" />
     <Compile Include="GameState\BoardMoveResult.cs" />
     <Compile Include="GameState\BoardMoveSequence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
