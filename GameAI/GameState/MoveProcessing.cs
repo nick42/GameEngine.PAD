@@ -10,7 +10,66 @@ namespace GameData
     {
         public GameLevelState m_GameLevelState;
 
-        public GameDataInterop.GameState.BoardMoveResult ExecuteBoardMove(GameDataInterop.BoardState oBoardState, GameDataInterop.GameState.BoardMoveSequence oBoardMoveSequence)
+        public GameDataInterop.GameState.BoardMoveSequence Debug_GenRandomMoveSequence(int nNumMoves)
+        {
+            VLRTech.Util.Checks.Runtime.AssertThrow(nNumMoves >= 0);
+
+            Random oRandomGenerator = new Random();
+
+            GameDataInterop.GameState.BoardMoveSequence oBoardMoveSequence = new GameDataInterop.GameState.BoardMoveSequence();
+            GameDataInterop.CellIndex oStartCellIndex = new GameDataInterop.CellIndex { m_nColumn = oRandomGenerator.Next(0, m_GameLevelState.m_BoardState.GetNumColumns()), m_nRow = oRandomGenerator.Next(0, m_GameLevelState.m_BoardState.GetNumRows()) };
+
+            oBoardMoveSequence.m_StartCellIndex = oStartCellIndex;
+
+            Array oSwapDirectionArray = Enum.GetValues(typeof(GameDataInterop.GameState.EDirection));
+            for (int i=0; i < nNumMoves; i++)
+            {
+                GameDataInterop.BoardElement oBoardElement_Start = m_GameLevelState.m_BoardState.GetBoardElementByCellIndex(oStartCellIndex);
+                VLRTech.Util.Checks.Runtime.AssertThrow(oBoardElement_Start.IsValidNonTransientToken());
+
+                GameDataInterop.GameState.EDirection eSwapDirection = GameDataInterop.GameState.EDirection.Unknown;
+                while (true)
+                {
+                    // Note: Using '1' as lower bound, to skip 'Unknown' enum value
+                    GameDataInterop.GameState.EDirection eSwapDirection_Potential = (GameDataInterop.GameState.EDirection)oSwapDirectionArray.GetValue(oRandomGenerator.Next(1, oSwapDirectionArray.GetLength(0)));
+                    GameDataInterop.BoardElement oBoardElement_SwapTarget = m_GameLevelState.m_BoardState.GetBoardElementByCellIndex(oBoardElement_Start.m_CellIndex.GetNeighboringCellIndex(eSwapDirection_Potential));
+                    if (oBoardElement_SwapTarget.IsOutOfBounds())
+                    {
+                        continue;
+                    }
+
+                    // Found a valid swap
+                    eSwapDirection = eSwapDirection_Potential;
+                    break;
+                }
+
+                GameDataInterop.GameState.BoardMoveStep oMoveStep = new GameDataInterop.GameState.BoardMoveStep
+                {
+                    m_StartCellIndex = oStartCellIndex,
+                    m_eDirection = eSwapDirection,
+                };
+                oBoardMoveSequence.m_oMoveStepList.Add(oMoveStep);
+
+                // Update start cell index to new move target
+                oStartCellIndex = m_GameLevelState.m_BoardState.GetBoardElementByCellIndex(oBoardElement_Start.m_CellIndex.GetNeighboringCellIndex(eSwapDirection)).m_CellIndex;
+            }
+
+            return oBoardMoveSequence;
+        }
+
+        public void ExecuteBoardMoveStep_BoardUpdateOnly(GameDataInterop.BoardState oBoardState, GameDataInterop.GameState.BoardMoveStep oBoardMoveStep)
+        {
+            VLRTech.Util.Checks.Runtime.AssertThrow(oBoardMoveStep.m_StartCellIndex != null);
+            VLRTech.Util.Checks.Runtime.AssertThrow(oBoardMoveStep.m_eDirection != GameDataInterop.GameState.EDirection.Unknown);
+
+            GameDataInterop.BoardElement oBoardElement_Swap1 = oBoardState.GetBoardElementByCellIndex(oBoardMoveStep.m_StartCellIndex);
+            GameDataInterop.BoardElement oBoardElement_Swap2 = oBoardState.GetBoardElementByCellIndex(oBoardMoveStep.m_StartCellIndex.GetNeighboringCellIndex(oBoardMoveStep.m_eDirection));
+            VLRTech.Util.Checks.Runtime.AssertThrow(!oBoardElement_Swap1.IsOutOfBounds());
+            VLRTech.Util.Checks.Runtime.AssertThrow(!oBoardElement_Swap2.IsOutOfBounds());
+
+            oBoardState.SwapCells(oBoardElement_Swap1, oBoardElement_Swap2);
+        }
+        public GameDataInterop.GameState.BoardMoveResult ExecuteBoardMoveSequence_Complete(GameDataInterop.BoardState oBoardState, GameDataInterop.GameState.BoardMoveSequence oBoardMoveSequence)
         {
             throw new NotImplementedException();
         }

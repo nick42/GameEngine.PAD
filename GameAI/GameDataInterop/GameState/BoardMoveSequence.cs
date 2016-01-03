@@ -30,6 +30,6 @@ namespace GameDataInterop.GameState
     public class BoardMoveSequence
     {
         public CellIndex m_StartCellIndex;
-        public List<BoardMoveStep> m_oMoveStepList;
+        public List<BoardMoveStep> m_oMoveStepList = new List<BoardMoveStep>();
     }
 }

@@ -43,10 +43,14 @@ namespace GameDataInterop
         public int GetCompositeIdentifier()
         {
             System.Diagnostics.Debug.Assert(m_nRow >= 0);
-            System.Diagnostics.Debug.Assert(m_nRow < 32000);
+            System.Diagnostics.Debug.Assert(m_nRow < 1000);
             System.Diagnostics.Debug.Assert(m_nColumn >= 0);
-            System.Diagnostics.Debug.Assert(m_nColumn < 32000);
-            return (m_nRow << 16) + m_nColumn;
+            System.Diagnostics.Debug.Assert(m_nColumn < 1000);
+
+            int nCompositeIdentifier = (m_nRow * 1000) + m_nColumn;
+            //System.Diagnostics.Debug.WriteLine("Identifier: {0}", nCompositeIdentifier);
+
+            return nCompositeIdentifier;
         }
 
         public CellIndex GetNeighboringCellIndex(Direction_HorizontalAndVertical eDirection, int nOffset = 1)
@@ -61,6 +65,30 @@ namespace GameDataInterop
                     return new CellIndex { m_nColumn = (m_nColumn - nOffset), m_nRow = m_nRow };
                 case Direction_HorizontalAndVertical.Right:
                     return new CellIndex { m_nColumn = (m_nColumn + nOffset), m_nRow = m_nRow };
+                default:
+                    throw new Exception("Case not handled in switch.");
+            }
+        }
+        public CellIndex GetNeighboringCellIndex(GameState.EDirection eDirection, int nOffset = 1)
+        {
+            switch (eDirection)
+            {
+                case GameState.EDirection.Up:
+                    return new CellIndex { m_nColumn = m_nColumn, m_nRow = (m_nRow - nOffset) };
+                case GameState.EDirection.Down:
+                    return new CellIndex { m_nColumn = m_nColumn, m_nRow = (m_nRow + nOffset) };
+                case GameState.EDirection.Left:
+                    return new CellIndex { m_nColumn = (m_nColumn - nOffset), m_nRow = m_nRow };
+                case GameState.EDirection.Right:
+                    return new CellIndex { m_nColumn = (m_nColumn + nOffset), m_nRow = m_nRow };
+                case GameState.EDirection.Diagonal_UpLeft:
+                    return new CellIndex { m_nColumn = (m_nColumn - nOffset), m_nRow = (m_nRow - nOffset) };
+                case GameState.EDirection.Diagonal_UpRight:
+                    return new CellIndex { m_nColumn = (m_nColumn + nOffset), m_nRow = (m_nRow - nOffset) };
+                case GameState.EDirection.Diagonal_DownLeft:
+                    return new CellIndex { m_nColumn = (m_nColumn - nOffset), m_nRow = (m_nRow + nOffset) };
+                case GameState.EDirection.Diagonal_DownRight:
+                    return new CellIndex { m_nColumn = (m_nColumn + nOffset), m_nRow = (m_nRow + nOffset) };
                 default:
                     throw new Exception("Case not handled in switch.");
             }
@@ -154,6 +182,17 @@ namespace GameDataInterop
             }
 
             return m_oBoardElementArray[oCellIndex.m_nColumn, oCellIndex.m_nRow];
+        }
+
+        // Allow swapping of contents, to avoid mucking with the array of objects, and/or updating cell indexes
+        public void SwapCells(BoardElement oBoardElement1, BoardElement oBoardElement2)
+        {
+            // Note: Preserve cell index, swap contents
+            // TODO: Make this less retarded
+
+            BoardElementBaseType eBoardElementBaseType = oBoardElement1.m_eBoardElementBaseType;
+            oBoardElement1.m_eBoardElementBaseType = oBoardElement2.m_eBoardElementBaseType;
+            oBoardElement2.m_eBoardElementBaseType = eBoardElementBaseType;
         }
     }
 }

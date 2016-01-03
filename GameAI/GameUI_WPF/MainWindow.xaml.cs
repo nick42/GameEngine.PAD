@@ -29,9 +29,28 @@ namespace GameUI_WPF
             m_GameLevelState = new GameData.GameLevelState();
             m_GameLevelState.InitializeNewLevel_Default();
 
-            m_GameLevelState.m_BoardProcessing.OutputBoardStateToDebugTrace(m_GameLevelState.m_BoardState);
+            for (int i=0; i < 100; ++i)
+            {
+                System.Diagnostics.Debug.WriteLine("Pre match-check board state:");
+                m_GameLevelState.m_BoardProcessing.OutputBoardStateToDebugTrace(m_GameLevelState.m_BoardState);
 
-            //List<GameDataInterop.GameState.BoardGemMatch> oBoardGemMatchList = m_GameLevelState.m_BoardProcessing.FindAllMatches(m_GameLevelState.m_BoardState);
+                for (int j=0; j < 10; j++)
+                {
+                    System.Diagnostics.Debug.WriteLine("Current board state:");
+                    m_GameLevelState.m_BoardProcessing.OutputBoardStateToDebugTrace(m_GameLevelState.m_BoardState);
+
+                    List<GameDataInterop.GameState.BoardGemMatch> oBoardGemMatchList = m_GameLevelState.m_BoardProcessing.FindAllMatches(m_GameLevelState.m_BoardState);
+
+                    System.Diagnostics.Debug.WriteLine(String.Format("Found {0} matches during board processing.", oBoardGemMatchList.Count()));
+
+                    var oMoveSequence = m_GameLevelState.m_MoveProcessing.Debug_GenRandomMoveSequence(100);
+                    foreach (var oMoveStep in oMoveSequence.m_oMoveStepList)
+                    {
+                        m_GameLevelState.m_MoveProcessing.ExecuteBoardMoveStep_BoardUpdateOnly(m_GameLevelState.m_BoardState, oMoveStep);
+                    }
+                }
+
+            }
         }
     }
 }
