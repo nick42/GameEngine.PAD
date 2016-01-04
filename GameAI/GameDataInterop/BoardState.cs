@@ -40,6 +40,24 @@ namespace GameDataInterop
         public int m_nRow;
         public int m_nColumn;
 
+        public override bool Equals(object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                CellIndex oOther = (CellIndex)obj;
+                return (m_nRow == oOther.m_nRow) && (m_nColumn == oOther.m_nColumn);
+            }
+        }
+        public override int GetHashCode()
+        {
+            return GetCompositeIdentifier();
+        }
+
         public int GetCompositeIdentifier()
         {
             System.Diagnostics.Debug.Assert(m_nRow >= 0);

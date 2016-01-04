@@ -69,9 +69,86 @@ namespace GameData
 
             oBoardState.SwapCells(oBoardElement_Swap1, oBoardElement_Swap2);
         }
+
         public GameDataInterop.GameState.BoardMoveResult ExecuteBoardMoveSequence_Complete(GameDataInterop.BoardState oBoardState, GameDataInterop.GameState.BoardMoveSequence oBoardMoveSequence)
         {
-            throw new NotImplementedException();
+            GameDataInterop.GameState.BoardMoveResult oBoardMoveResult = new GameDataInterop.GameState.BoardMoveResult();
+
+            // TODO: Copy board state, so we can leave unmodified in the event of an error while processing the move
+
+            // Execute the move sequence
+            // Check correctness of move sequence as we go
+
+            GameDataInterop.CellIndex oCurrentCellIndex = oBoardMoveSequence.m_StartCellIndex;
+
+            foreach (var oMoveStep in oBoardMoveSequence.m_oMoveStepList)
+            {
+                VLRTech.Util.Checks.Runtime.AssertThrow(oCurrentCellIndex.Equals(oMoveStep.m_StartCellIndex));
+
+                ExecuteBoardMoveStep_BoardUpdateOnly(oBoardState, oMoveStep);
+
+                oCurrentCellIndex = oCurrentCellIndex.GetNeighboringCellIndex(oMoveStep.m_eDirection);
+            }
+
+            // Collect initial matches
+
+            List<GameDataInterop.GameState.BoardGemMatch> oBoardMatchList = m_GameLevelState.m_BoardProcessing.FindAllMatches(oBoardState);
+
+            oBoardMoveResult.m_oBoardMatchList_PreCascade = oBoardMatchList;
+
+            int nCascadeIteration = 0;
+            while (true)
+            {
+                // Initial check, in case we didn't produce any pre-cascade matches
+                if (oBoardMatchList.Count() == 0)
+                {
+                    break;
+                }
+
+                ++nCascadeIteration;
+
+                ExecuteBoardClearMatches(oBoardState, oBoardMatchList);
+                ExecuteBoardCascade_Consolidate(oBoardState);
+                ExecuteBoardCascade_Skyfall(oBoardState);
+
+                oBoardMatchList = m_GameLevelState.m_BoardProcessing.FindAllMatches(oBoardState);
+                if (oBoardMatchList.Count() == 0)
+                {
+                    // We're done
+                    break;
+                }
+
+                if (oBoardMoveResult.m_oBoardMatchList_PostCascade == null)
+                {
+                    oBoardMoveResult.m_oBoardMatchList_PostCascade = new List<GameDataInterop.GameState.BoardGemMatch>();
+                }
+
+                // Mark all matches in this generation with the applicable iteration number, 
+                // and add to results list
+                foreach (var oBoardGemMatch in oBoardMatchList)
+                {
+                    oBoardGemMatch.m_nCascadeIteration = nCascadeIteration;
+                    oBoardMoveResult.m_oBoardMatchList_PostCascade.Add(oBoardGemMatch);
+                }
+            }
+
+            // TODO: Calculate point total
+
+            return oBoardMoveResult;
+        }
+
+        public void ExecuteBoardClearMatches(GameDataInterop.BoardState oBoardState, List<GameDataInterop.GameState.BoardGemMatch> oBoardMatchList)
+        {
+            foreach (var oBoardGemMatch in oBoardMatchList)
+            {
+                foreach (var oBoardElementInMatch in oBoardGemMatch.m_oMatchElementList)
+                {
+                    GameDataInterop.BoardElement oBoardElement_FoundInMatch = oBoardState.GetBoardElementByCellIndex(oBoardElementInMatch.m_oBoardElement.m_CellIndex);
+                    VLRTech.Util.Checks.Runtime.AssertThrow(oBoardElement_FoundInMatch.IsValidNonTransientToken());
+
+                    oBoardElement_FoundInMatch.m_eBoardElementBaseType = GameDataInterop.BoardElementBaseType.Transitory_Empty;
+                }
+            }
         }
 
         public void ExecuteBoardCascade(GameDataInterop.BoardState oBoardState)

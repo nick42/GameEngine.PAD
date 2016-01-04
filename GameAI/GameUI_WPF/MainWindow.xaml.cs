@@ -44,12 +44,14 @@ namespace GameUI_WPF
                     System.Diagnostics.Debug.WriteLine(String.Format("Found {0} matches during board processing.", oBoardGemMatchList.Count()));
 
                     var oMoveSequence = m_GameLevelState.m_MoveProcessing.Debug_GenRandomMoveSequence(100);
-                    foreach (var oMoveStep in oMoveSequence.m_oMoveStepList)
-                    {
-                        m_GameLevelState.m_MoveProcessing.ExecuteBoardMoveStep_BoardUpdateOnly(m_GameLevelState.m_BoardState, oMoveStep);
-                    }
-                }
 
+                    GameDataInterop.GameState.BoardMoveResult oBoardMoveResult = m_GameLevelState.m_MoveProcessing.ExecuteBoardMoveSequence_Complete(m_GameLevelState.m_BoardState, oMoveSequence);
+
+                    System.Diagnostics.Debug.WriteLine(
+                        String.Format("Processed random move sequence; {0} matches pre-cascade, {1} post-cascade.", 
+                        oBoardMoveResult.m_oBoardMatchList_PreCascade.Count(), 
+                        (oBoardMoveResult.m_oBoardMatchList_PostCascade != null) ? oBoardMoveResult.m_oBoardMatchList_PostCascade.Count() : 0 ));
+                }
             }
         }
     }
